@@ -5,13 +5,33 @@
 
 import sys
 
+def get_percent_of(index, array):
+    """Get the percent position of the string in a string array."""
+    # 1. get length before
+    # 2. get half length of array[index] string
+    # 3. get length of all strings in array
+    # 4. return length before + half length / length of all strings
 
+    length_before = 0
+    for i in range(index):
+        length_before += len(array[i])
+
+    length_full = length_before
+    for i in range(index, len(array)):
+        length_full += len(array[i])
+
+    length_at_index = length_before + (len(array[index])/2)
+    percent_at_index = length_at_index / length_full
+
+    return percent_at_index
 
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
 SPEECH_SEPARATOR = "\n" * 3
 
 full_speeches_text = sys.stdin.read()
+
+## Split input into speeches, sentences {{{
 
 # separate text into speeches
 speeches = full_speeches_text.split(SPEECH_SEPARATOR)
@@ -48,4 +68,11 @@ for speech in speeches_no_empty:
 # set finished variable
 formatted_speeches = speeches_no_title
 
-print(formatted_speeches)
+# }}}
+
+for speech in formatted_speeches:
+    #print()
+    for i in range(len(speech)):
+        position = get_percent_of(i, speech)
+        print(position)
+    #print()
