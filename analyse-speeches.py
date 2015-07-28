@@ -27,15 +27,6 @@ def get_percent_of(index, array):
 
     return percent_at_index
 
-def form_json(sentence, summary, previous_summary, position):
-    """Form JSON."""
-    json = {"sentence": sentence,
-            "summary": summary,
-            "prev_summary": previous_summary,
-            "position": position
-            }
-    return json
-
 def form_json(info):
     """Form JSON using expected keys in an input dictionary.
 
@@ -47,7 +38,6 @@ def form_json(info):
 
     json = {"sentence": info["sentence"],
             "summary": info["summary"],
-            "prev_summary": info["prev_summary"],
             "position": info["position"],
             }
     return json
@@ -55,12 +45,11 @@ def form_json(info):
 def get_info_for_index(i, speech):
     sentence = speech[i]
     summary = get_summary_of(sentence)
-    previous_summary = ["example previous summary", "ex. prev. summary pt. 2"]
+
     position = get_percent_of(i, speech)
 
     info = {"sentence": sentence,
             "summary": summary,
-            "prev_summary": previous_summary,
             "position": position
             }
     return info
@@ -72,26 +61,23 @@ def get_summary_of(sentence):
             "NNS",
             "NNP",
             "NNPS",
-            "FW",
-            "JJ",
-            "JJR",
-            "JJS",
-            "VB",
-            "VBD",
-            "VBG",
-            "VBN",
-            "VBP",
-            "VBZ",
-            "RB",
-            "RBR",
-            "RBS"
+#            "FW",
+#            "JJ",
+#            "JJR",
+#            "JJS",
+#            "VB",
+#            "VBD",
+#            "VBG",
+#            "VBN",
+#            "VBP",
+#            "VBZ",
+#            "RB",
+#            "RBR",
+#            "RBS"
             ]
     summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged)) ]
-    print(summary_words)
 
-
-    summary = ["example summary", "example summary pt. 2"]
-    return summary
+    return summary_words
 
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
@@ -147,6 +133,8 @@ for speech in formatted_speeches:
 
         # form JSON using info
         sentence_json = form_json(info)
+
+        # add to data dictionary
         data["data"].append(sentence_json)
 
-#print(json.dumps(data, indent=2))
+print(json.dumps(data, indent=2))
