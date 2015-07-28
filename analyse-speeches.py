@@ -4,6 +4,7 @@
 #
 
 import sys
+import json
 
 def get_percent_of(index, array):
     """Get the percent position of the string in a string array."""
@@ -24,6 +25,16 @@ def get_percent_of(index, array):
     percent_at_index = length_at_index / length_full
 
     return percent_at_index
+
+def form_json(sentence, summary, previous_summary, position):
+    """Form JSON."""
+    json = {"sentence": sentence,
+            "summary": summary,
+            "prev_summary": previous_summary,
+            "position": position
+            }
+    return json
+
 
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
@@ -70,9 +81,17 @@ formatted_speeches = speeches_no_title
 
 # }}}
 
+data = {"data": []}
+
 for speech in formatted_speeches:
-    #print()
     for i in range(len(speech)):
+        sentence = speech[i]
+        summary = ["example summary", "ex. sum. pt 2"]
+        previous_summary = ["example previous summary", "ex. summary pt. 2"]
         position = get_percent_of(i, speech)
+
+        sentence_json = form_json(sentence, summary, previous_summary, position)
+        data["data"].append(sentence_json)
         print(position)
-    #print()
+
+print(json.dumps(data, indent=2))
