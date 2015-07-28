@@ -5,6 +5,7 @@
 
 import sys
 import json
+import nltk
 
 def get_percent_of(index, array):
     """Get the percent position of the string in a string array."""
@@ -35,6 +36,62 @@ def form_json(sentence, summary, previous_summary, position):
             }
     return json
 
+def form_json(info):
+    """Form JSON using expected keys in an input dictionary.
+
+    Note that in the end it's basically selecting keys from a dictionary, which
+    could be done easier, but the actual operation *isn't* actually that,
+    because the keys in the input dictionary shouldn't be forced to be the same
+    as the JSON format keys. So I'm not doing a shorter filter function.
+    """
+
+    json = {"sentence": info["sentence"],
+            "summary": info["summary"],
+            "prev_summary": info["prev_summary"],
+            "position": info["position"],
+            }
+    return json
+
+def get_info_for_index(i, speech):
+    sentence = speech[i]
+    summary = get_summary_of(sentence)
+    previous_summary = ["example previous summary", "ex. prev. summary pt. 2"]
+    position = get_percent_of(i, speech)
+
+    info = {"sentence": sentence,
+            "summary": summary,
+            "prev_summary": previous_summary,
+            "position": position
+            }
+    return info
+
+def get_summary_of(sentence):
+    tokens_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
+    allowed_tags = [
+            "NN",
+            "NNS",
+            "NNP",
+            "NNPS",
+            "FW",
+            "JJ",
+            "JJR",
+            "JJS",
+            "VB",
+            "VBD",
+            "VBG",
+            "VBN",
+            "VBP",
+            "VBZ",
+            "RB",
+            "RBR",
+            "RBS"
+            ]
+    summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged)) ]
+    print(summary_words)
+
+
+    summary = ["example summary", "example summary pt. 2"]
+    return summary
 
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
@@ -85,13 +142,11 @@ data = {"data": []}
 
 for speech in formatted_speeches:
     for i in range(len(speech)):
-        sentence = speech[i]
-        summary = ["example summary", "ex. sum. pt 2"]
-        previous_summary = ["example previous summary", "ex. summary pt. 2"]
-        position = get_percent_of(i, speech)
+        # get all info
+        info = get_info_for_index(i, speech)
 
-        sentence_json = form_json(sentence, summary, previous_summary, position)
+        # form JSON using info
+        sentence_json = form_json(info)
         data["data"].append(sentence_json)
-        print(position)
 
-print(json.dumps(data, indent=2))
+#print(json.dumps(data, indent=2))
