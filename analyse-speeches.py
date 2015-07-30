@@ -35,6 +35,8 @@ def split_sentences(text):
             sentences = speech[i].split(SENTENCE_SEPARATOR)
 
             # join single-sentence paragraphs
+            # TODO: doesn't work for single-sentence paragraphs at the end (they
+            #       are separated)
             if len(sentences) == 1 and i != len(speech) - 1:
                 if sentences[0] != "":
                     # valid single-sentence found: add to buffer
@@ -47,6 +49,8 @@ def split_sentences(text):
                     buffer_sentences = single_sentence_buffer[:-1].split(SENTENCE_SEPARATOR)
 
                     # remove fullstops
+                    # TODO: doesn't remove other ending punctuation
+                    # TODO: code duplication LMFAO wHo cAREAS HAHA Xd
                     if buffer_sentences[-1].endswith("."):
                         buffer_sentences[-1] = buffer_sentences[-1][:-len(".")]
 
@@ -139,18 +143,6 @@ def form_json(info):
             "position": info["position"],
             }
     return json
-
-
-#for speech in parsed_speeches:
-#    for i in range(len(speech)):
-#        # get all info
-#        info = get_info_for_index(i, speech)
-#
-#        # form JSON using info
-#        sentence_json = form_json(info)
-#
-#        # add to data dictionary
-#        data["data"].append(sentence_json)
 
 def get_info_for_index(i, speech):
     sentence = speech[i]
