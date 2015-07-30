@@ -187,7 +187,7 @@ def summary_of(sentence):
 
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
-SPEECH_SEPARATOR = "\n" * 3
+SPEECH_SEPARATOR = "=" * 15
 
 full_speeches_text = sys.stdin.read()
 parsed_speeches = parse_speeches(full_speeches_text)
