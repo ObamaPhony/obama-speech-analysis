@@ -105,9 +105,9 @@ def analyse_speeches(parsed_speeches):
 
 def print_analysis_info(info):
     # DEBUG
-    #print(json.dumps(info, indent=2))
+    print(json.dumps(info, indent=2))
 
-    print(json.dumps(info))
+    #print(json.dumps(info))
 
 def percent_at_index(index, array):
     """Get the percent position of the string in a string array."""
@@ -158,6 +158,9 @@ def get_info_for_index(i, speech):
 
 def summary_of(sentence):
     tokens_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
+
+    return tokens_tagged
+
     allowed_tags = [
             "NN",
             "NNS",
@@ -177,9 +180,8 @@ def summary_of(sentence):
 #            "RBR",
 #            "RBS"
             ]
-    summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged)) ]
+    #summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged)) ]
 
-    return summary_words
 
 
 
