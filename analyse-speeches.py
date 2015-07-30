@@ -7,7 +7,103 @@ import sys
 import json
 import nltk
 
-def get_percent_of(index, array):
+def split_speeches(text):
+    speeches = text.split(SPEECH_SEPARATOR)
+    return speeches
+
+def split_paragraphs(text):
+    # 2, not 1? ok, weird
+    title_offset = 2
+
+    speeches = []
+    for speech in text:
+        # split & remove title (for now)
+        paragraphs = speech.split(PARAGRAPH_SEPARATOR)[title_offset:]
+
+        # remove empty elements
+        paragraphs = list(filter(None, paragraphs))
+
+        speeches.append(paragraphs)
+    return speeches
+
+def split_sentences(text):
+    speeches = []
+    for speech in text:
+        paragraphs = []
+        single_sentence_buffer = ""
+        for i in range(len(speech)):
+            sentences = speech[i].split(SENTENCE_SEPARATOR)
+
+            # join single-sentence paragraphs
+            if len(sentences) == 1 and i != len(speech) - 1:
+                if sentences[0] != "":
+                    # valid single-sentence found: add to buffer
+                    single_sentence_buffer += speech[i] + " "
+                    continue
+            else:
+                if single_sentence_buffer != "":
+                    # if buffer is present, format & insert it
+                    # [:-1] removes extra space from SENTENCE_SEPARATOR
+                    buffer_sentences = single_sentence_buffer[:-1].split(SENTENCE_SEPARATOR)
+
+                    # remove fullstops
+                    if buffer_sentences[-1].endswith("."):
+                        buffer_sentences[-1] = buffer_sentences[-1][:-len(".")]
+
+                    # insert it
+                    paragraphs.append(buffer_sentences)
+
+                    # clear buffer
+                    single_sentence_buffer = ""
+
+            sentences = speech[i].split(SENTENCE_SEPARATOR)
+
+            # remove fullstops
+            if sentences[-1].endswith("."):
+                sentences[-1] = sentences[-1][:-len(".")]
+
+
+            paragraphs.append(sentences)
+        speeches.append(paragraphs)
+    return speeches
+
+def parse_speeches(full_text):
+    speeches = full_text
+
+    speeches = split_speeches(speeches)
+    speeches = split_paragraphs(speeches)
+    speeches = split_sentences(speeches)
+
+    return speeches
+
+def analyse_speeches(parsed_speeches):
+    a_speeches = []
+
+    for speech in parsed_speeches:
+        a_paragraphs = []
+        for paragraph in speech:
+            a_sentences = []
+            for i in range(len(paragraph)):
+                sentence = paragraph[i]
+                summary = summary_of(sentence)
+                position = percent_at_index(i, paragraph)
+
+                analysed_sentence = {
+                        "sentence": sentence,
+                        "summary": summary,
+                        "position": position
+                        }
+                a_sentences.append(analysed_sentence)
+            a_paragraphs.append(a_sentences)
+        a_speeches.append(a_paragraphs)
+
+    return a_speeches
+
+def print_analysis_info(info):
+    print(json.dumps(info, indent=2))
+    #print(json.dumps(info))
+
+def percent_at_index(index, array):
     """Get the percent position of the string in a string array."""
     # 1. get length before
     # 2. get half length of array[index] string
@@ -42,11 +138,23 @@ def form_json(info):
             }
     return json
 
+
+#for speech in parsed_speeches:
+#    for i in range(len(speech)):
+#        # get all info
+#        info = get_info_for_index(i, speech)
+#
+#        # form JSON using info
+#        sentence_json = form_json(info)
+#
+#        # add to data dictionary
+#        data["data"].append(sentence_json)
+
 def get_info_for_index(i, speech):
     sentence = speech[i]
-    summary = get_summary_of(sentence)
+    summary = summary_of(sentence)
 
-    position = get_percent_of(i, speech)
+    position = percent_of_index(i, speech)
 
     info = {"sentence": sentence,
             "summary": summary,
@@ -54,7 +162,7 @@ def get_info_for_index(i, speech):
             }
     return info
 
-def get_summary_of(sentence):
+def summary_of(sentence):
     tokens_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
     allowed_tags = [
             "NN",
@@ -79,62 +187,15 @@ def get_summary_of(sentence):
 
     return summary_words
 
+
+
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
 SPEECH_SEPARATOR = "\n" * 3
 
 full_speeches_text = sys.stdin.read()
+parsed_speeches = parse_speeches(full_speeches_text)
 
-## Split input into speeches, sentences {{{
+analysis_info = analyse_speeches(parsed_speeches)
 
-# separate text into speeches
-speeches = full_speeches_text.split(SPEECH_SEPARATOR)
-
-# separate speeches into paragraphs
-speeches_paragraphs = []
-for speech in speeches:
-    speeches_paragraphs.append(speech.split(PARAGRAPH_SEPARATOR))
-
-# separate paragraphs into sentences
-speeches_sentences = []
-for speech in speeches_paragraphs:
-    current_speech = []
-    for paragraph in speech:
-        sentences = paragraph.split(SENTENCE_SEPARATOR)
-        if sentences[-1].endswith("."):
-            sentences[-1] = sentences[-1][:-len(".")]
-        current_speech.extend(sentences)
-
-    speeches_sentences.append(current_speech)
-
-# remove empty elements
-speeches_no_empty = []
-for speech in speeches_sentences:
-    current_speech = []
-    current_speech.extend(filter(None, speech))
-    speeches_no_empty.append(current_speech)
-
-# remove speech titles (for now we're not using them)
-speeches_no_title = []
-for speech in speeches_no_empty:
-    speeches_no_title.append(speech[1:])
-
-# set finished variable
-formatted_speeches = speeches_no_title
-
-# }}}
-
-data = {"data": []}
-
-for speech in formatted_speeches:
-    for i in range(len(speech)):
-        # get all info
-        info = get_info_for_index(i, speech)
-
-        # form JSON using info
-        sentence_json = form_json(info)
-
-        # add to data dictionary
-        data["data"].append(sentence_json)
-
-print(json.dumps(data, indent=2))
+print_analysis_info(analysis_info)
