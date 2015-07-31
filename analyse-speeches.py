@@ -105,9 +105,9 @@ def analyse_speeches(parsed_speeches):
 
 def print_analysis_info(info):
     # DEBUG
-    print(json.dumps(info, indent=2))
+    #print(json.dumps(info, indent=2))
 
-    #print(json.dumps(info))
+    print(json.dumps(info))
 
 def percent_at_index(index, array):
     """Get the percent position of the string in a string array."""
