@@ -7,9 +7,11 @@ import sys
 import json
 import nltk
 
+
 def split_speeches(text):
     speeches = text.split(SPEECH_SEPARATOR)
     return speeches
+
 
 def split_paragraphs(text):
     # 2, not 1? ok, weird
@@ -26,6 +28,7 @@ def split_paragraphs(text):
         speeches.append(paragraphs)
     return speeches
 
+
 def split_sentences(text):
     speeches = []
     for speech in text:
@@ -35,8 +38,8 @@ def split_sentences(text):
             sentences = speech[i].split(SENTENCE_SEPARATOR)
 
             # join single-sentence paragraphs
-            # TODO: doesn't work for single-sentence paragraphs at the end (they
-            #       are separated)
+            # TODO: doesn't work for single-sentence paragraphs at the
+            # end (they are separated)
             if len(sentences) == 1 and i != len(speech) - 1:
                 if sentences[0] != "":
                     # valid single-sentence found: add to buffer
@@ -66,10 +69,10 @@ def split_sentences(text):
             if sentences[-1].endswith("."):
                 sentences[-1] = sentences[-1][:-len(".")]
 
-
             paragraphs.append(sentences)
         speeches.append(paragraphs)
     return speeches
+
 
 def parse_speeches(full_text):
     speeches = full_text
@@ -79,6 +82,7 @@ def parse_speeches(full_text):
     speeches = split_sentences(speeches)
 
     return speeches
+
 
 def analyse_speeches(parsed_speeches):
     a_speeches = []
@@ -103,11 +107,13 @@ def analyse_speeches(parsed_speeches):
 
     return a_speeches
 
+
 def print_analysis_info(info):
     # DEBUG
-    #print(json.dumps(info, indent=2))
+    # print(json.dumps(info, indent=2))
 
     print(json.dumps(info))
+
 
 def percent_at_index(index, array):
     """Get the percent position of the string in a string array."""
@@ -129,6 +135,7 @@ def percent_at_index(index, array):
 
     return percent_at_index
 
+
 def form_json(info):
     """Form JSON using expected keys in an input dictionary.
 
@@ -144,6 +151,7 @@ def form_json(info):
             }
     return json
 
+
 def get_info_for_index(i, speech):
     sentence = speech[i]
     summary = summary_of(sentence)
@@ -156,35 +164,31 @@ def get_info_for_index(i, speech):
             }
     return info
 
+
 def summary_of(sentence):
     tokens_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
 
     return tokens_tagged
 
-    allowed_tags = [
-            "NN",
-            "NNS",
-            "NNP",
-            "NNPS",
-#            "FW",
-#            "JJ",
-#            "JJR",
-#            "JJS",
-#            "VB",
-#            "VBD",
-#            "VBG",
-#            "VBN",
-#            "VBP",
-#            "VBZ",
-#            "RB",
-#            "RBR",
-#            "RBS"
-            ]
-    #summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged)) ]
-
-
-
-
+    allowed_tags = ["NN",
+                    "NNS",
+                    "NNP",
+                    "NNPS",
+                    #            "FW",
+                    #            "JJ",
+                    #            "JJR",
+                    #            "JJS",
+                    #            "VB",
+                    #            "VBD",
+                    #            "VBG",
+                    #            "VBN",
+                    #            "VBP",
+                    #            "VBZ",
+                    #            "RB",
+                    #            "RBR",
+                    #            "RBS"
+    ]
+    # summary_words = [ tagged_word[0] for tagged_word in list(filter(lambda word: word[1] in allowed_tags, tokens_tagged))]
 SENTENCE_SEPARATOR = ". "
 PARAGRAPH_SEPARATOR = "\n"
 SPEECH_SEPARATOR = "=" * 15
